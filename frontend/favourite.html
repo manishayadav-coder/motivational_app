@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Favourite Quotes</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Merriweather:ital,wght@1,400;1,700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body class="bg">
+
+  <!-- ✅ Navbar -->
+  <nav class="navbar">
+    <a href="index.html">🏠 Home</a>
+    <a href="feed.html">📢 Feed</a>
+    <a href="post.html">➕ Post</a>
+    <a href="favourite.html">⭐ Favourites</a>
+    <a href="profile.html">👤 Profile</a>
+    <a href="login.html" onclick="logout()">🚪 Logout</a>
+  </nav>
+
+  <div class="container card">
+    <h1><i class="fa-solid fa-star"></i> Your Favourite Quotes</h1>
+    <div id="favourite-list" class="favourite-list"></div>
+
+    <div class="buttons">
+      <button id="clearAll"><i class="fa-solid fa-trash"></i> Clear All</button>
+      <button id="backBtn"><i class="fa-solid fa-arrow-left"></i> Back</button>
+    </div>
+  </div>
+
+<script>
+  // 🔹 Logout function
+  function logout(){
+    localStorage.clear();
+    alert("You have been logged out!");
+    window.location.href = "login.html";
+  }
+
+  const favouriteList = document.getElementById("favourite-list");
+  const clearAllBtn   = document.getElementById("clearAll");
+  const backBtn       = document.getElementById("backBtn");
+
+  let favourite = JSON.parse(localStorage.getItem("favourite") || "[]");
+
+  function renderFavourite(){
+    favouriteList.innerHTML = "";
+    if (!favourite.length){
+      favouriteList.innerHTML = "<p class='empty'>No favourites added yet.</p>";
+      return;
+    }
+    favourite.forEach((fav, index) => {
+      const card = document.createElement("div");
+      card.className = "fav-card";
+      card.innerHTML = `
+        <div class="image-wrapper">
+          <img src="${fav.image}" alt="User Image"/>
+          <div class="quote-overlay">
+            <p class="quote-text">"${fav.quote}"</p>
+            <span class="quote-author">- ${fav.user}</span>
+          </div>
+        </div>
+        <button class="remove" title="Remove" onclick="removeFavourite(${index})">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      `;
+      favouriteList.appendChild(card);
+    });
+  }
+
+  window.removeFavourite = (i) => {
+    favourite.splice(i,1);
+    localStorage.setItem("favourite", JSON.stringify(favourite));
+    renderFavourite();
+  };
+
+  clearAllBtn.addEventListener("click", ()=>{
+    favourite = [];
+    localStorage.setItem("favourite", JSON.stringify(favourite));
+    renderFavourite();
+  });
+
+  // ✅ Back to Feed instead of Index
+  backBtn.addEventListener("click", ()=> location.href = "feed.html");
+
+  renderFavourite();
+</script>
+</body>
+</html>

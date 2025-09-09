@@ -1,0 +1,46 @@
+{
+  "english": {
+    "sad": [
+      "Even the darkest night ends with sunrise.",
+      "Your current struggle is not your final story."
+    ],
+    "love": [
+      "Let your heart overflow into kindness.",
+      "Love yourself first; the rest follows."
+    ],
+    "real_life": [
+      "Small steps every day lead to big results.",
+      "Discipline beats motivation—show up anyway."
+    ],
+    "krishna": [
+      "Do your duty without attachment.",
+      "Surrender your work; peace will follow."
+    ],
+    "geeta": [
+      "You have a right to action, not to its fruits.",
+      "The soul is neither born, nor does it die."
+    ]
+  },
+  "hindi": {
+    "sad": [
+      "सबसे काली रात के बाद भी सूरज निकलता है।",
+      "आज की जंग आख़िरी कहानी नहीं है।"
+    ],
+    "love": [
+      "खुद से इतना प्यार करो कि दूसरों में बाँट सको।",
+      "जहाँ प्यार है, वहीं जीवन है।"
+    ],
+    "real_life": [
+      "रोज़ के छोटे कदम बड़ी मंज़िल तक ले जाते हैं।",
+      "अनुशासन प्रेरणा से बड़ा है—हर दिन हाज़िर रहो।"
+    ],
+    "krishna": [
+      "बिना आसक्ति के अपना कर्तव्य निभाओ।",
+      "कर्म को समर्पित करो, शांति अपने आप आएगी।"
+    ],
+    "geeta": [
+      "कर्म करो, फल की चिंता मत करो।",
+      "आत्मा न जन्म लेती है, न मरती है।"
+    ]
+  }
+}

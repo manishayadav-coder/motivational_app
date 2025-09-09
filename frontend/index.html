@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Motivational App</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body class="bg">
+
+<nav class="navbar">
+  <a href="index.html">🏠 Home</a>
+  <a href="feed.html">📢 Feed</a>
+  <a href="#" id="postBtn">➕ Post</a>
+  <a href="favourite.html">⭐ Favourites</a>
+  <a href="profile.html">👤 Profile</a>
+  <a href="login.html" onclick="logout()">🚪 Logout</a>
+</nav>
+
+<div class="container card" id="formContainer">
+  <h1>🌟 Daily Motivational Quotes 🌟</h1>
+
+  <label>Choose Language:</label>
+  <select id="language">
+    <option value="english">English</option>
+    <option value="hindi">Hindi</option>
+  </select>
+
+  <label>Choose Category:</label>
+  <select id="category">
+    <option value="sad">Sad Motivation</option>
+    <option value="love">Love Motivation</option>
+    <option value="attitude">Attitude Motivation</option>
+    <option value="krishna">Krishna Motivation</option>
+    <option value="geeta">Shrimad Bhagavad Gita Motivation</option>
+    <option value="birthday">Birthday Quotes</option>
+    <option value="anniversary">Anniversary Quotes</option>
+    <option value="good_morning">Good Morning Quotes</option>
+    <option value="good_evening">Good Evening Quotes</option>
+    <option value="festival">Festival Quotes</option>
+  </select>
+
+  <label>Enter Your Name:</label>
+  <input type="text" id="username" placeholder="Your name..."/>
+
+  <label>Upload Your Image:</label>
+  <input type="file" id="imageUpload" name="file" accept="image/*"/>
+
+  <button id="show-quote" class="btn-primary">Show Quotes</button>
+</div>
+
+<div class="container card" id="quoteSelection" style="display:none;">
+  <h2>Select Your Favourite Quote</h2>
+  <ul id="quoteList" class="quote-list"></ul>
+</div>
+
+<script src="app.js"></script>
+<script>
+function logout() {
+  localStorage.clear();
+  alert("You have been logged out!");
+
+const API_BASE = "https://yourapp.cyclic.app";
+
+}
+</script>
+
+</body>
+</html>

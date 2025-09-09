@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Post Editor</title>
+<style>
+body{background:#071022;color:#fff;font-family:Arial;padding:18px}
+.card{background:#0b1220;padding:16px;border-radius:12px;max-width:720px;margin:0 auto}
+.quote-overlay{position:relative;padding-top:12px}
+img,video{max-width:100%;display:block;border-radius:8px}
+.controls{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.btn{padding:8px 12px;border-radius:6px;border:0;cursor:pointer}
+.btn-primary{background:#0ea5a4;color:#000}
+.btn-danger{background:#ef4444;color:#fff}
+.panel{background:#071a27;padding:10px;border-radius:8px;margin-top:12px}
+.range{width:100%}
+</style>
+</head>
+<body>
+<div class="card" id="card">
+  <div id="mediaArea">Loading...</div>
+  <div class="quote-overlay">
+    <h3 id="nameEl"></h3>
+    <p id="quoteEl"></p>
+  </div>
+  <div class="controls">
+    <button class="btn btn-primary" id="editBtn">Edit Quote</button>
+    <button class="btn btn-danger" id="deleteBtn">Delete Post</button>
+    <button class="btn" id="adjustBtn">Adjust</button>
+    <button class="btn" id="aspectBtn">Aspect</button>
+  </div>
+
+  <div id="adjustPanel" class="panel" style="display:none">
+    <label>Brightness</label><input type="range" id="brightness" class="range" min="0.5" max="2" step="0.05" value="1"/>
+    <label>Contrast</label><input type="range" id="contrast" class="range" min="0.5" max="2" step="0.05" value="1"/>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button id="applyAdjust" class="btn btn-primary">Apply</button>
+      <button id="resetAdjust" class="btn">Reset</button>
+    </div>
+  </div>
+
+  <div id="aspectPanel" class="panel" style="display:none">
+    <button data-aspect="1:1" class="btn">1:1</button>
+    <button data-aspect="16:9" class="btn">16:9</button>
+    <button data-aspect="9:16" class="btn">9:16</button>
+    <button data-aspect="4:3" class="btn">4:3</button>
+  </div>
+</div>
+
+<script>
+
+const API_BASE = "https://yourapp.cyclic.app";
+
+const params = new URLSearchParams(window.location.search);
+const postId = params.get("id");
+if (!postId) {
+  document.getElementById("mediaArea").innerText = "No post id provided in URL.";
+}
+
+async function loadPost() {
+  const res = await fetch(`${API_BASE}/posts/${postId}`);
+  if (!res.ok) return document.getElementById("mediaArea").innerText = "Post not found.";
+  const data = await res.json();
+  const post = data.post;
+  document.getElementById("nameEl").innerText = post.name;
+  document.getElementById("quoteEl").innerText = post.quote || "(no quote)";
+
+  const mediaArea = document.getElementById("mediaArea");
+  mediaArea.innerHTML = "";
+  if (post.type === "video") {
+    const v = document.createElement("video");
+    v.src = post.file; v.controls = true; v.autoplay = true;
+    mediaArea.appendChild(v);
+  } else {
+    const img = document.createElement("img");
+    img.src = post.file; img.id = "mediaEl";
+    mediaArea.appendChild(img);
+  }
+}
+loadPost();
+
+// Edit quote
+document.getElementById("editBtn").onclick = async () => {
+  const newQ = prompt("Edit quote:", document.getElementById("quoteEl").innerText);
+  if (newQ === null) return;
+  const res = await fetch(`${API_BASE}/posts/${postId}`, {
+    method: "PUT", headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ quote: newQ })
+  });
+  if (res.ok) {
+    document.getElementById("quoteEl").innerText = newQ;
+    alert("Quote updated");
+  } else alert("Update failed");
+};
+
+// Delete
+document.getElementById("deleteBtn").onclick = async () => {
+  if (!confirm("Delete this post?")) return;
+  const res = await fetch(`${API_BASE}/posts/${postId}`, { method: "DELETE" });
+  if (res.ok) { alert("Deleted"); window.location.href = "feed.html"; }
+  else alert("Delete failed");
+};
+
+// Adjust UI
+document.getElementById("adjustBtn").onclick = () => {
+  const p = document.getElementById("adjustPanel");
+  p.style.display = p.style.display === "none" ? "block" : "none";
+};
+document.getElementById("aspectBtn").onclick = () => {
+  const p = document.getElementById("aspectPanel");
+  p.style.display = p.style.display === "none" ? "block" : "none";
+};
+
+// Apply/Reset filters
+document.getElementById("applyAdjust").onclick = () => {
+  const b = document.getElementById("brightness").value;
+  const c = document.getElementById("contrast").value;
+  const el = document.getElementById("mediaEl") || document.querySelector("video");
+  if (el) el.style.filter = `brightness(${b}) contrast(${c})`;
+  document.getElementById("adjustPanel").style.display = "none";
+};
+document.getElementById("resetAdjust").onclick = () => {
+  const el = document.getElementById("mediaEl") || document.querySelector("video");
+  if (el) el.style.filter = "";
+  document.getElementById("brightness").value = 1;
+  document.getElementById("contrast").value = 1;
+};
+
+// Aspect buttons
+document.querySelectorAll("#aspectPanel button").forEach(btn=>{
+  btn.onclick = () => {
+    const ratio = btn.dataset.aspect.split(":");
+    const box = document.getElementById("mediaArea");
+    // change height by setting padding-top on parent card to simulate aspect (simple)
+    const w = parseInt(ratio[0]), h = parseInt(ratio[1]);
+    // Not too fancy: scale image container by setting max-height (approx)
+    box.style.maxHeight = (window.innerWidth * (h/w)) + "px";
+  };
+});
+</script>
+</body>
+</html>
