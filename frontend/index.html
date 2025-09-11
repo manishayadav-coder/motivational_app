@@ -54,15 +54,55 @@
   <ul id="quoteList" class="quote-list"></ul>
 </div>
 
-<script src="app.js"></script>
 <script>
-function logout() {
-  localStorage.clear();
-  alert("You have been logged out!");
+  // 🔹 Backend URL
+  const API_BASE = "https://motivational-app.onrender.com";  
 
-const API_BASE = "https://yourapp.cyclic.app";
+  function logout() {
+    localStorage.clear();
+    alert("You have been logged out!");
+    window.location.href = "login.html";  // redirect
+  }
 
-}
+  // 🔹 Show Quotes button click event
+  document.getElementById("show-quote").addEventListener("click", async () => {
+    const language = document.getElementById("language").value;
+    const category = document.getElementById("category").value;
+    const username = document.getElementById("username").value;
+
+    if (!username) {
+      alert("⚠️ Please enter your name!");
+      return;
+    }
+
+    try {
+      // 🔹 Backend API call
+      const response = await fetch(`${API_BASE}/api/quotes?language=${language}&category=${category}`);
+      
+      if (!response.ok) {
+        throw new Error("Server error: " + response.statusText);
+      }
+
+      const quotes = await response.json();
+
+      // 🔹 Show quotes list
+      const quoteList = document.getElementById("quoteList");
+      quoteList.innerHTML = ""; 
+
+      quotes.forEach(q => {
+        const li = document.createElement("li");
+        li.textContent = q;   // ✅ direct string, not q.text
+        quoteList.appendChild(li);
+      });
+
+      document.getElementById("formContainer").style.display = "none";
+      document.getElementById("quoteSelection").style.display = "block";
+
+    } catch (err) {
+      console.error("Fetch error:", err);
+      alert("❌ Failed to load quotes. Please check your backend.");
+    }
+  });
 </script>
 
 </body>
