@@ -38,4 +38,6 @@ mongoose.connect("mongodb+srv://manisha:TSJtBL0Wwl0GJKry@cluster0.e0crvnm.mongod
 // ======================
 // Start server
 // ======================
+
+app.get("/",(req,res)=>{res.send("backend is working");});
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
