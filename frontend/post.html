@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Create Post</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body class="bg">
+
+  <!-- ✅ Navbar -->
+  <nav class="navbar">
+    <a href="index.html">🏠 Home</a>
+    <a href="feed.html">📢 Feed</a>
+    <a href="post.html">➕ Post</a>
+    <a href="favourite.html">⭐ Favourites</a>
+    <a href="profile.html">👤 Profile</a>
+    <a href="login.html" onclick="logout()">🚪 Logout</a>
+  </nav>
+
+  <div class="container card" id="formContainer">
+    <h1>➕ Create a New Post</h1>
+
+    <label>Enter Your Name:</label>
+    <input type="text" id="username" placeholder="Your name..."/>
+
+    <label>Caption:</label>
+    <input type="text" id="caption" placeholder="Write something..."/>
+
+    <label>Upload Image/Video:</label>
+    <input type="file" id="mediaFile" accept="image/*,video/*"/>
+
+    <button id="uploadBtn" class="btn-primary">Upload Post</button>
+  </div>
+
+  <script>
+    const API_BASE = "https://motivational-app-m9bi.onrender.com";
+
+    function logout(){
+      localStorage.clear();
+      alert("You have been logged out!");
+      window.location.href = "login.html";
+    }
+
+    document.getElementById("uploadBtn").addEventListener("click", async () => {
+      const username = document.getElementById("username").value.trim();
+      const caption = document.getElementById("caption").value.trim();
+      const file = document.getElementById("mediaFile").files[0];
+
+      if (!username) {
+        alert("⚠️ Please enter your name!");
+        return;
+      }
+      if (!file) {
+        alert("⚠️ Please upload an image or video!");
+        return;
+      }
+
+      const type = file.type.startsWith("video") ? "video" : "image";
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("name", username);
+      formData.append("quote", caption);
+      formData.append("type", type);
+
+      try {
+        const res = await fetch(`${API_BASE}/posts/upload`, {
+          method: "POST",
+          body: formData
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data.error || "Upload failed");
+        }
+
+        alert("✅ Post uploaded successfully!");
+        window.location.href = "feed.html";  // redirect to feed
+      } catch (err) {
+        console.error("Upload error:", err);
+        alert("❌ Failed to upload post.\n" + err.message);
+      }
+    });
+  </script>
+</body>
+</html>

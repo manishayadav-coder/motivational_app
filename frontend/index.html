@@ -22,8 +22,8 @@
 
   <label>Choose Language:</label>
   <select id="language">
-    <option value="english">English</option>
-    <option value="hindi">Hindi</option>
+    <option value="en">English</option>
+    <option value="hi">Hindi</option>
   </select>
 
   <label>Choose Category:</label>
@@ -43,10 +43,10 @@
   <label>Enter Your Name:</label>
   <input type="text" id="username" placeholder="Your name..."/>
 
-  <label>Upload Your Image:</label>
-  <input type="file" id="imageUpload" name="file" accept="image/*"/>
+  <label>Upload Image/Video:</label>
+  <input type="file" id="imageUpload" name="file" accept="image/*,video/*"/>
 
-  <button id="show-quote" class="btn-primary">Show Quotes</button>
+  <button id="show-quote" class="btn-primary">Upload & Show Quotes</button>
 </div>
 
 <div class="container card" id="quoteSelection" style="display:none;">
@@ -55,43 +55,66 @@
 </div>
 
 <script>
-  // 🔹 Backend URL
-  const API_BASE = "https://motivational-app.onrender.com";  
+  // 👇 backend का सही Render URL डालें
+  const API_BASE = "https://motivational-app-m9bi.onrender.com";
 
   function logout() {
     localStorage.clear();
     alert("You have been logged out!");
-    window.location.href = "login.html";  // redirect
+    window.location.href = "login.html";
   }
 
-  // 🔹 Show Quotes button click event
+  // Show Quotes + Upload event
   document.getElementById("show-quote").addEventListener("click", async () => {
-    const language = document.getElementById("language").value;
+    // 🔥 Language mapping: english→en, hindi→hi
+    let language = document.getElementById("language").value;
+    if (language === "english") language = "en";
+    if (language === "hindi") language = "hi";
+
     const category = document.getElementById("category").value;
-    const username = document.getElementById("username").value;
+    const username = document.getElementById("username").value.trim();
+    const file = document.getElementById("imageUpload").files[0];
 
     if (!username) {
       alert("⚠️ Please enter your name!");
       return;
     }
+    if (!file) {
+      alert("⚠️ Please upload an image or video!");
+      return;
+    }
 
     try {
-      // 🔹 Backend API call
-      const response = await fetch(`${API_BASE}/api/quotes?language=${language}&category=${category}`);
-      
-      if (!response.ok) {
-        throw new Error("Server error: " + response.statusText);
+      // 1️⃣ Upload file + name
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("name", username);
+      formData.append("quote", "");
+
+      const uploadRes = await fetch(`${API_BASE}/posts/upload`, {
+        method: "POST",
+        body: formData
+      });
+      const uploadData = await uploadRes.json();
+      if (!uploadRes.ok || !uploadData.success) {
+        throw new Error(uploadData.error || "Upload failed");
       }
 
-      const quotes = await response.json();
+      // 2️⃣ Fetch quotes
+      const response = await fetch(
+        `${API_BASE}/api/quotes?language=${language}&category=${category}`
+      );
+      if (!response.ok) throw new Error("Server error: " + response.statusText);
 
-      // 🔹 Show quotes list
+      const data = await response.json();
+      const quotes = data.quotes || [];
+
+      // 3️⃣ Show quotes list
       const quoteList = document.getElementById("quoteList");
-      quoteList.innerHTML = ""; 
-
+      quoteList.innerHTML = "";
       quotes.forEach(q => {
         const li = document.createElement("li");
-        li.textContent = q;   // ✅ direct string, not q.text
+        li.textContent = q;
         quoteList.appendChild(li);
       });
 
@@ -99,8 +122,8 @@
       document.getElementById("quoteSelection").style.display = "block";
 
     } catch (err) {
-      console.error("Fetch error:", err);
-      alert("❌ Failed to load quotes. Please check your backend.");
+      console.error("Error:", err);
+      alert("❌ Something went wrong: " + err.message);
     }
   });
 </script>

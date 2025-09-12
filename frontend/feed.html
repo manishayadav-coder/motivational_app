@@ -11,7 +11,18 @@
       border-radius: 8px;
       cursor: pointer;
     }
+    .feed-img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      cursor: pointer;
+    }
     .modal-video {
+      width: 100%;
+      max-height: 400px;
+      border-radius: 8px;
+    }
+    .modal-img {
       width: 100%;
       max-height: 400px;
       border-radius: 8px;
@@ -45,7 +56,8 @@
   </div>
 
   <script>
-    // 🔹 Logout function
+    const API_BASE = "https://motivational-app-m9bi.onrender.com";
+
     function logout(){
       localStorage.clear();
       alert("You have been logged out!");
@@ -54,8 +66,8 @@
 
     async function loadFeed() {
       try {
-        let res = await fetch("http://localhost:5000/api/posts/feed", {
-          headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
+        let res = await fetch(`${API_BASE}/posts`, {
+          headers: { "Authorization": "Bearer " + (localStorage.getItem("token") || "") }
         });
 
         if (!res.ok) throw new Error("Failed to fetch feed");
@@ -73,24 +85,21 @@
           const div = document.createElement("div");
           div.className = "grid-item";
           
-          // ✅ Show video if type=video else image
           if (p.type === "video") {
             div.innerHTML = `
               <video controls class="feed-video" onclick="openModal(${index})">
-                <source src="${p.videoUrl}" type="video/mp4"/>
-                Your browser does not support the video tag.
+                <source src="${p.file}" type="video/mp4"/>
               </video>
             `;
           } else {
             div.innerHTML = `
-              <img src="${p.image}" alt="post image" onclick="openModal(${index})"/>
+              <img src="${p.file}" alt="post image" class="feed-img" onclick="openModal(${index})"/>
             `;
           }
 
           feed.appendChild(div);
         });
 
-        // Save posts globally for modal
         window.allPosts = posts;
       } catch (err) {
         console.error(err);
@@ -106,25 +115,18 @@
       if (p.type === "video") {
         mediaHTML = `
           <video controls class="modal-video">
-            <source src="${p.videoUrl}" type="video/mp4"/>
+            <source src="${p.file}" type="video/mp4"/>
           </video>
         `;
       } else {
-        mediaHTML = `<img src="${p.image}" alt="post image" class="modal-img"/>`;
+        mediaHTML = `<img src="${p.file}" alt="post image" class="modal-img"/>`;
       }
 
       modalBody.innerHTML = `
-        <h3><a href="profile.html?id=${p.user._id}">@${p.user.username}</a></h3>
+        <h3>${p.name || "Anonymous"}</h3>
         ${mediaHTML}
-        <p>${p.caption}</p>
-        <button onclick="likePost('${p._id}')">❤️ ${p.likes.length}</button>
-        <button onclick="commentPost('${p._id}')">💬 Comment</button>
-        <div class="comments">
-          ${p.comments.length 
-            ? p.comments.map(c => `<p><b>${c.user?.username || "User"}</b>: ${c.text}</p>`).join("") 
-            : "<p>No comments yet.</p>"
-          }
-        </div>
+        <p>${p.quote || ""}</p>
+        <button onclick="deletePost('${p._id || p.id}')">🗑 Delete</button>
       `;
       document.getElementById("postModal").style.display = "flex";
     }
@@ -133,26 +135,14 @@
       document.getElementById("postModal").style.display = "none";
     }
 
-    async function likePost(id){
-      await fetch(`http://localhost:5000/api/posts/${id}/like`, {
-        method: "POST",
-        headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
+    async function deletePost(id){
+      if (!confirm("Delete this post?")) return;
+      await fetch(`${API_BASE}/posts/${id}`, {
+        method: "DELETE",
+        headers: { "Authorization": "Bearer " + (localStorage.getItem("token") || "") }
       });
       loadFeed();
-    }
-
-    async function commentPost(id){
-      const text = prompt("Enter comment:");
-      if(!text) return;
-      await fetch(`http://localhost:5000/api/posts/${id}/comment`, {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        body: JSON.stringify({ text })
-      });
-      loadFeed();
+      closeModal();
     }
 
     loadFeed();

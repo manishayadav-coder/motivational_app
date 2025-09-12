@@ -1,5 +1,4 @@
-// ✅ Backend URL (localhost की जगह हमेशा online URL डालो)
-const API_BASE = "https://yourapp.cyclic.app";  
+const API_BASE = "https://motivational-app-m9bi.onrender.com";  
 
 // Elements
 const showBtn = document.getElementById("show-quote");
@@ -25,11 +24,11 @@ if (showBtn) {
 
     const formData = new FormData();
     formData.append("file", imageInput);
-    formData.append("name", username);
-    formData.append("quote", ""); 
+    formData.append("name", username);  // backend → author
+    formData.append("quote", "");       // backend → caption
 
     try {
-      const res = await fetch(`${API_BASE}/upload`, {
+      const res = await fetch(`${API_BASE}/posts/upload`, {
         method: "POST",
         body: formData,
       });
@@ -39,7 +38,7 @@ if (showBtn) {
         throw new Error(data.error || "Upload failed");
       }
 
-      uploadedPostId = data.post.id;
+      uploadedPostId = data.post._id; // MongoDB `_id`
       formContainer.style.display = "none";
       quoteSection.style.display = "block";
       loadQuotes();
@@ -60,11 +59,11 @@ async function loadQuotes() {
     posts.forEach((post) => {
       const li = document.createElement("li");
       li.innerHTML = `
-        <strong>${post.name}</strong>: ${post.quote || "(no quote yet)"}<br>
+        <strong>${post.author || "Anonymous"}</strong>: ${post.caption || "(no quote yet)"}<br>
         ${post.type === "video" 
-          ? `<video src="${post.file}" width="200" controls></video>` 
-          : `<img src="${post.file}" width="150"/>`}
-        <button onclick="deletePost(${post.id})">🗑 Delete</button>
+          ? `<video src="${post.videoUrl}" width="200" controls></video>` 
+          : `<img src="${post.imageUrl}" width="150"/>`}
+        <button onclick="deletePost('${post._id}')">🗑 Delete</button>
       `;
       quoteList.appendChild(li);
     });

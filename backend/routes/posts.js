@@ -23,12 +23,15 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ storage });
 
-// upload route
+// ======================
+// Upload route
+// ======================
 router.post("/upload", upload.single("file"), async (req, res) => {
   try {
     const newPost = new Post({
-      caption: req.body.caption || "",
-      author: req.body.author || "Anonymous",
+      // 👇 frontend से आने वाले fields (name, quote) को backend schema से match कराया
+      caption: req.body.quote || "",
+      author: req.body.name || "Anonymous",
       imageUrl: req.file && req.file.mimetype.startsWith("image") ? req.file.path : null,
       videoUrl: req.file && req.file.mimetype.startsWith("video") ? req.file.path : null,
       type: req.file.mimetype.startsWith("video") ? "video" : "image",
@@ -42,7 +45,9 @@ router.post("/upload", upload.single("file"), async (req, res) => {
   }
 });
 
-// get all posts
+// ======================
+// Get all posts
+// ======================
 router.get("/", async (req, res) => {
   try {
     const posts = await Post.find();
@@ -52,7 +57,9 @@ router.get("/", async (req, res) => {
   }
 });
 
-// delete post
+// ======================
+// Delete post
+// ======================
 router.delete("/:id", async (req, res) => {
   try {
     await Post.findByIdAndDelete(req.params.id);
