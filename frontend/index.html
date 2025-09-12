@@ -55,8 +55,11 @@
 </div>
 
 <script>
-  // 👇 backend का सही Render URL डालें
+  // 👇 Local backend के लिए (test)
+
+
   const API_BASE = "https://motivational-app-m9bi.onrender.com";
+
 
   function logout() {
     localStorage.clear();
@@ -66,11 +69,7 @@
 
   // Show Quotes + Upload event
   document.getElementById("show-quote").addEventListener("click", async () => {
-    // 🔥 Language mapping: english→en, hindi→hi
     let language = document.getElementById("language").value;
-    if (language === "english") language = "en";
-    if (language === "hindi") language = "hi";
-
     const category = document.getElementById("category").value;
     const username = document.getElementById("username").value.trim();
     const file = document.getElementById("imageUpload").files[0];
@@ -103,6 +102,8 @@
       // 2️⃣ Fetch quotes
       const response = await fetch(
         `${API_BASE}/api/quotes?language=${language}&category=${category}`
+
+      
       );
       if (!response.ok) throw new Error("Server error: " + response.statusText);
 
